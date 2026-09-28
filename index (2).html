@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#07110f">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-3s7MENMY+clSoTg9a3YOBtQxtAG3ZLBgGULHKDnUJS4=' https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js; connect-src https://*.workers.dev https://identitytoolkit.googleapis.com https://securetoken.googleapis.com blob:; img-src blob: data:; media-src blob:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>GNOKZ Review Center</title>
+<style>
+  :root {
+    --bg:#040908; --panel:#08110f; --panel2:#0b1815; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --text:#eef5f3; --muted:#8fa19c; --dim:#5f716c; --brand:#0E766D; --brand2:#7FD7CB; --warn:#ffd166; --bad:#ff7b7b; --ok:#7FD7CB;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; min-height:100%; background:var(--bg); color:var(--text); }
+  body { font:14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(circle at 10% -10%, rgba(14,118,109,.22), transparent 35%), linear-gradient(180deg,#040908,#050b0a); }
+  button, input, select, textarea { font:inherit; color:inherit; }
+  a { color:var(--brand2); }
+  .hidden { display:none !important; }
+  .muted { color:var(--muted); } .dim { color:var(--dim); } .bad { color:var(--bad); } .okc { color:var(--ok); } .warnc { color:var(--warn); }
+  .small { font-size:12px; } .tiny { font-size:11px; }
+  .eyebrow { font-size:10px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:rgba(127,215,203,.75); }
+  .card { background:linear-gradient(180deg, rgba(255,255,255,.028), rgba(255,255,255,.012)); border:1px solid var(--line); border-radius:20px; padding:16px; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:42px; padding:0 14px; border-radius:13px; border:1px solid var(--line2);
+    background:rgba(255,255,255,.035); cursor:pointer; font-weight:700; font-size:13px; }
+  .btn:hover { border-color:rgba(127,215,203,.35); }
+  .btn:disabled { opacity:.45; cursor:default; }
+  .btn.primary { background:linear-gradient(135deg,#0E766D,#43b8ad); border-color:transparent; color:#02120f; }
+  .btn.danger { color:#ffb3b3; border-color:rgba(255,90,90,.25); background:rgba(255,80,80,.06); }
+  .btn.on { border-color:var(--brand2); color:var(--brand2); background:rgba(14,118,109,.12); }
+  .input { width:100%; min-height:44px; padding:10px 12px; border-radius:13px; border:1px solid var(--line2); background:rgba(0,0,0,.25); outline:none; }
+  .input:focus { border-color:var(--brand2); }
+  textarea.input { min-height:96px; resize:vertical; }
+  label.field { display:block; margin-top:12px; } label.field > span { display:block; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .tag { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:99px; border:1px solid var(--line2); color:var(--muted); margin:2px 4px 2px 0; }
+  .tag.warn { color:var(--warn); border-color:rgba(255,209,102,.3); } .tag.bad { color:var(--bad); border-color:rgba(255,123,123,.3); }
+  .tag.ok { color:var(--ok); border-color:rgba(127,215,203,.3); } .tag.me { color:#02120f; background:var(--brand2); border-color:var(--brand2); }
+
+  /* Sign-in */
+  #signin { max-width:420px; margin:8vh auto; padding:0 16px; }
+  .logo { width:46px; height:46px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-weight:900;
+    background:linear-gradient(135deg,#0E766D,#7FD7CB); color:#02120f; font-size:18px; }
+
+  /* App */
+  header.top { position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px;
+    background:rgba(4,9,8,.86); backdrop-filter:blur(14px); border-bottom:1px solid var(--line); }
+  .who { text-align:right; } .who b { display:block; font-size:13px; } .who span { font-size:11px; color:var(--muted); }
+  .tabs { display:flex; gap:8px; overflow-x:auto; padding:12px 16px 4px; scrollbar-width:none; } .tabs::-webkit-scrollbar { display:none; }
+  .tab { flex:none; min-width:112px; text-align:left; padding:10px 12px; border-radius:16px; border:1px solid var(--line); background:rgba(255,255,255,.02); cursor:pointer; }
+  .tab b { display:block; font-size:20px; line-height:1.1; } .tab span { display:block; font-size:11px; color:var(--muted); font-weight:700; }
+  .tab em { display:block; font-style:normal; font-size:10px; color:var(--dim); margin-top:2px; }
+  .tab.on { border-color:var(--brand2); background:rgba(14,118,109,.14); }
+  main.layout { display:grid; grid-template-columns:minmax(280px, 370px) 1fr; gap:16px; padding:12px 16px 40px; }
+  @media (max-width: 860px) { main.layout { grid-template-columns:1fr; } main.layout.detail-open #listPane { display:none; } main.layout:not(.detail-open) #detailPane { display:none; } }
+  .item { cursor:pointer; margin-bottom:10px; } .item.sel { border-color:var(--brand2); }
+  .item .title { font-weight:800; font-size:15px; }
+  .media { width:100%; border-radius:14px; display:block; background:#000; }
+  .round { width:112px; height:112px; border-radius:50%; object-fit:cover; background:#000; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; } @media (max-width:560px) { .grid2 { grid-template-columns:1fr; } }
+  dl { display:grid; grid-template-columns:130px 1fr; gap:6px 12px; margin:0; } dt { color:var(--muted); font-size:12px; } dd { margin:0; white-space:pre-wrap; word-break:break-word; }
+  @media (max-width:560px) { dl { grid-template-columns:1fr; } dt { margin-top:6px; } }
+  .sec { margin:22px 0 10px; }
+  .lockbar { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:12px; border-radius:16px; margin:12px 0; border:1px solid var(--line2); }
+  .lockbar.mine { border-color:rgba(127,215,203,.45); background:rgba(14,118,109,.12); } .lockbar.other { border-color:rgba(255,209,102,.4); background:rgba(255,209,102,.06); }
+  .checks { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px; }
+  .checks label { display:flex; gap:6px; align-items:center; font-size:13px; }
+  .note { border-left:3px solid var(--brand); padding:6px 10px; margin:8px 0; background:rgba(255,255,255,.02); border-radius:0 10px 10px 0; }
+  .event { font-size:12px; color:var(--muted); padding:3px 0; }
+  audio { width:100%; margin-top:6px; }
+  #toast { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); max-width:92vw; padding:10px 16px; border-radius:14px; background:#0d201c; border:1px solid var(--line2);
+    font-size:13px; font-weight:700; z-index:20; }
+</style>
+</head>
+<body>
+
+<!-- SIGN IN -->
+<section id="signin">
+  <div class="row" style="gap:12px"><div class="logo">G</div><div><div class="eyebrow">GNOKZ ADMIN</div><div style="font-size:22px;font-weight:900">Review Center</div></div></div>
+  <div class="card" style="margin-top:20px">
+    <p class="muted small" style="margin-top:0">Sign in with <b>your own Gnokz account</b> (the one the Owner added to the review team).</p>
+    <form id="signinForm" autocomplete="on">
+      <label class="field"><span>Email</span><input id="email" class="input" type="email" autocomplete="username" required></label>
+      <label class="field"><span>Password</span><input id="password" class="input" type="password" autocomplete="current-password" required></label>
+      <button class="btn primary" style="width:100%;margin-top:16px" type="submit" id="signinBtn">Sign in</button>
+    </form>
+    <div class="row" style="justify-content:space-between;margin-top:10px">
+      <button class="btn" type="button" id="resetBtn" style="min-height:34px;font-size:12px">Forgot password</button>
+      <button class="btn" type="button" id="serverBtn" style="min-height:34px;font-size:12px">Server</button>
+    </div>
+    <label class="field hidden" id="serverBox"><span>Worker URL</span><input id="server" class="input" type="url" spellcheck="false"></label>
+    <p id="signinMsg" class="small" role="status"></p>
+    <p id="serverNote" class="tiny warnc hidden"></p>
+  </div>
+  <p class="dim tiny" style="text-align:center">Only people on the Gnokz review team can see anything here. Your session ends when you close this tab.</p>
+</section>
+
+<!-- APP -->
+<section id="app" class="hidden">
+  <header class="top">
+    <div class="row" style="gap:10px"><div class="logo" style="width:36px;height:36px;border-radius:12px;font-size:14px">G</div>
+      <div><div class="eyebrow" style="font-size:9px">GNOKZ ADMIN</div><div style="font-weight:900">Review Center</div></div></div>
+    <div class="row" style="gap:10px">
+      <div class="who"><b id="whoName"></b><span id="whoRole"></span></div>
+      <button class="btn" id="refreshBtn" title="Refresh" aria-label="Refresh">⟳</button>
+      <button class="btn" id="menuBtn" aria-label="Menu">☰</button>
+    </div>
+  </header>
+  <div id="menu" class="card hidden" style="position:fixed;right:12px;top:66px;z-index:6;min-width:230px">
+    <button class="btn" style="width:100%" id="cleanupBtn">Run 30-day cleanup</button>
+    <button class="btn" style="width:100%;margin-top:8px" id="signoutBtn">Sign out</button>
+    <p class="dim tiny" id="leadHint" style="margin-bottom:0"></p>
+    <p class="dim tiny" id="serverHint" style="margin-bottom:0"></p>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Queues"></nav>
+  <main class="layout" id="layout">
+    <section id="listPane"></section>
+    <section id="detailPane"><div class="card muted">Choose something from the queue.</div></section>
+  </main>
+</section>
+<div id="toast" class="hidden" role="status"></div>
+
+<script>
+"use strict";
+// ---------------------------------------------------------------------
+// GNOKZ Review Center (ADMIN Phase 3.1)
+// Sign-in: Firebase Authentication REST (no external scripts). The ID token
+// lives in memory; the refresh token in sessionStorage (gone when the tab
+// closes). Every request goes to the Gnokz Music Worker /v1/review/*, which
+// checks the team role each time. All server text is escaped before display.
+// ---------------------------------------------------------------------
+const DEFAULT_SERVER = "https://gnokz-music-api.reymarkdelagao1080.workers.dev";
+const LAME = { url: "https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js", sri: "sha384-xuasJXVcyv3hZq0eYpelEkBC8l4yufatZXDsKuyCU2rqfhDCb+ftuE/mSfZAteiK" };
+const QUEUES = [
+  ["SUBMITTED", "Submitted"], ["IN_REVIEW", "In review"], ["NEEDS_CHANGES", "Needs changes"], ["NEEDS_PROOF", "Needs proof"],
+  ["APPROVED", "Approved"], ["REJECTED", "Rejected"], ["CHANGES", "Profile changes"],
+];
+// Phase 3.2: Lead tabs (shown only with the permission).
+const LEAD_QUEUES = [["CLAIMS", "Artist claims", "REVIEW_CLAIMS"], ["DELETIONS", "Deletion requests", "DELETION_REQUESTS"], ["ACTIVITY", "Team activity", "VIEW_TEAM_ACTIVITY"]];
+const CLAIM_STATUSES = [["PENDING", "Waiting"], ["MORE_INFORMATION_REQUIRED", "Asked for more info"], ["APPROVED", "Approved"], ["REJECTED", "Rejected"]];
+const CLAIM_METHODS = { REGISTERED_ARTIST_EMAIL: "Code sent to the artist's registered email", GNOKZ_INVITATION: "Gnokz invitation", OFFICIAL_DOMAIN: "Official website",
+  OFFICIAL_SOCIAL_PROFILE: "Official social profile", MANUAL_REVIEW: "Manual review (explains in the note)" };
+const CLAIM_TEMPLATES = {
+  "request-information": [
+    { label: "Post a code on the official profile", text: "To confirm this artist is yours, please post the word GNOKZ plus today's date on the official profile you linked (a story or bio is fine), then send your claim again with the link." },
+    { label: "Link is not official", text: "The link you sent does not look like the artist's official page. Please send the official website or verified social profile of the artist." },
+  ],
+  "reject": [
+    { label: "Could not confirm", text: "We could not confirm that you represent this artist, so the claim was not approved. If you believe this is a mistake, send a new claim with an official link." },
+    { label: "Artist already managed", text: "This artist is already managed by its owner on Gnokz for Artists. Ask the owner to add you to the team." },
+  ],
+};
+const ACTION_LABELS = {
+  TEAM_ADD: "Added to the team", TEAM_READD: "Brought back", TEAM_REMOVE: "Removed from the team", TEAM_ROLE: "Role changed", TEAM_RENAME: "Name changed", CLEANUP: "Ran the 30-day cleanup",
+  LOCK_TAKEOVER: "Took over a review", LOCK_RELEASE_OTHER: "Released someone else's review", NOTE_ADD: "Added a team note",
+  "SINGLE:start-review": "Started reviewing a single", "SINGLE:approve": "Approved a single (live)", "SINGLE:reject": "Rejected a single", "SINGLE:needs-changes": "Asked for changes",
+  "SINGLE:needs-proof": "Asked for proof", "SINGLE:publish": "PUBLISH NOW", "SINGLE:stream-copy": "Added the MP3 streaming copy", "SINGLE:other": "Other single action",
+  "PROFILE_CHANGE:approve": "Approved a profile change", "PROFILE_CHANGE:reject": "Rejected a profile change", "PROFILE_CHANGE:other": "Other profile-change action",
+  "CLAIM:approve": "Approved an artist claim", "CLAIM:reject": "Rejected an artist claim", "CLAIM:request-information": "Asked a claimant for more info", "CLAIM:refused": "Tried artist claims",
+  DELETION_REQUEST_ADD: "Recorded a deletion request", DELETION_REQUEST_READY: "Checked a deletion request", DELETION_REQUEST_CANCEL: "Cancelled a deletion request",
+  ACCOUNT_DELETED: "Deleted an account (email request)", DELETION_FIREBASE_DONE: "Removed a sign-in in Firebase",
+};
+const ITEMS = ["ARTIST_NAME","GENRE","PROFILE_PHOTO","COVER_PHOTO","TITLE","AUDIO","ARTWORK","CREDITS","LYRICS","EXPLICIT","AI_DETAILS","DECLARATIONS"];
+const REASONS = { COPYRIGHT:"Music/beat belongs to someone else", AI_VOICE:"AI voice or voice clone", PROMPT_GENERATED:"Song generated from a prompt",
+  ARTWORK:"Artwork breaks rules (logo/watermark/others' art)", AUDIO_QUALITY:"Audio quality too low", IMPERSONATION:"Pretends to be another artist", SPAM:"Spam or duplicate", OTHER:"Other" };
+/** Message templates: the artist sees the message exactly as written (edit freely before sending). */
+const TEMPLATES = {
+  "needs-changes": [
+    { label: "Artwork has a logo / watermark", items: ["ARTWORK"], text: "Your artwork contains a logo or watermark. Gnokz Music only accepts clean artwork without logos, brand marks or watermarks. Please upload a new artwork and send it again." },
+    { label: "Artwork blurry / low quality", items: ["ARTWORK"], text: "Your artwork is blurry or low quality. Please upload a sharp square image (1400×1400) and send it again." },
+    { label: "Title spelling / extra words", items: ["TITLE"], text: "Please check the song title: correct spelling and capital letters, and no extra words like \"Official Audio\" or \"Lyrics\". Then send it again." },
+    { label: "Credits incomplete", items: ["CREDITS"], text: "Please complete the songwriter and producer credits with the real names of the people who made the song, then send it again." },
+    { label: "Audio quality problem", items: ["AUDIO"], text: "The audio has quality problems (for example clipping, noise or a low bitrate). Please upload a clean export (MP3 320 kbps, WAV or FLAC) and send it again." },
+    { label: "Profile / cover photo not OK", items: ["PROFILE_PHOTO", "COVER_PHOTO"], text: "Your profile or cover photo is not clear or contains a logo. Please upload a clean photo that represents you as the artist and send it again." },
+    { label: "Explicit label wrong", items: ["EXPLICIT"], text: "This song contains explicit language. Please mark it as Explicit and send it again." },
+  ],
+  "needs-proof": [
+    { label: "Prove the music is yours", text: "Before we publish, please send proof that this music is yours: the original beat or project file, a vocal-only track (acapella or stems), or a short video of you performing part of the song." },
+    { label: "Prove the voice is yours (AI check)", text: "Your song mentions AI tools. Please send a vocal-only track (acapella) or a short video of you singing part of the song, so we can confirm the voice is your own real voice." },
+  ],
+  "reject": [
+    { label: "Copyrighted material", reason: "COPYRIGHT", text: "We reviewed your submission and found that the audio contains copyrighted material from another artist. Your release was not published. If you believe this is a mistake, you can appeal once with proof of ownership." },
+    { label: "AI voice / voice clone", reason: "AI_VOICE", text: "Your song uses an AI-generated voice or a voice clone. Gnokz Music only accepts songs sung with your own real voice. Your release was not published. If you believe this is a mistake, you can appeal once." },
+    { label: "Generated from a prompt", reason: "PROMPT_GENERATED", text: "Your song appears to be generated from a text prompt without your own original beat or voice. Gnokz Music only accepts music you made yourself. Your release was not published. You can appeal once if this is a mistake." },
+    { label: "Impersonation", reason: "IMPERSONATION", text: "This release presents itself as another artist. Impersonation is not allowed on Gnokz Music, so your release was not published." },
+    { label: "Spam / duplicate", reason: "SPAM", text: "This release is a duplicate or spam. It was not published." },
+  ],
+  "change-reject": [
+    { label: "Name not allowed", text: "Your new artist name cannot be used (it is taken, misleading, or breaks the name rules). Your current name stays. You can ask for a different name." },
+    { label: "Photo not OK", text: "Your new photo contains a logo, watermark or someone else's image, or is not clear. Your current photos stay. Please upload a clean photo and ask again." },
+  ],
+};
+
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const S = { claimStatus: "PENDING", delStatus: "OPEN", actFilter: "", claims: [], dels: [], activity: [], members: [], server: "", apiKey: null, idToken: null, idExpires: 0, refreshToken: null, me: null, queue: "SUBMITTED", summary: null, items: [], changes: [],
+  locks: [], selected: null, urls: [], lockTimer: null, pollTimer: null };
+
+function toast(text, ms = 3200) { const t = $("toast"); t.textContent = text; t.classList.remove("hidden"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.add("hidden"), ms); }
+function storage(kind) { try { return window[kind]; } catch (_) { return null; } }
+const session = storage("sessionStorage"), local = storage("localStorage");
+function saveSession() { try { if (S.refreshToken) session?.setItem("gnokzReviewRefresh", S.refreshToken); else session?.removeItem("gnokzReviewRefresh"); } catch (_) {} }
+function server() { return (S.server || DEFAULT_SERVER).replace(/\/+$/, ""); }
+function ago(iso) {
+  if (!iso) return ""; const ms = Date.now() - Date.parse(iso); if (!(ms >= 0)) return "";
+  const h = Math.floor(ms / 3600000); if (h < 1) return "just now"; if (h < 48) return h + " h"; return Math.floor(h / 24) + " days";
+}
+function hhmm(iso) { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); }
+
+// ---- Firebase sign-in (REST) -------------------------------------------
+async function loadConfig() {
+  const res = await fetch(server() + "/v1/review/config");
+  if (!res.ok) throw new Error(res.status === 404 ? "This server has no Review Center yet (deploy the Phase 3.1 Worker)." : "Server error " + res.status);
+  const json = await res.json(); S.apiKey = json.firebase && json.firebase.apiKey;
+  if (!S.apiKey) throw new Error("The server has no Firebase key configured.");
+}
+const FIREBASE_ERRORS = { EMAIL_NOT_FOUND: "Wrong email or password.", INVALID_PASSWORD: "Wrong email or password.", INVALID_LOGIN_CREDENTIALS: "Wrong email or password.",
+  USER_DISABLED: "This account is disabled.", TOO_MANY_ATTEMPTS_TRY_LATER: "Too many attempts. Try again later." };
+async function firebase(path, body, host = "https://identitytoolkit.googleapis.com/v1/") {
+  const res = await fetch(host + path + "?key=" + encodeURIComponent(S.apiKey), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) { const code = String(json.error && json.error.message || "").split(" ")[0]; throw new Error(FIREBASE_ERRORS[code] || "Sign-in failed (" + (code || res.status) + ")."); }
+  return json;
+}
+async function signIn(email, password) {
+  const j = await firebase("accounts:signInWithPassword", { email, password, returnSecureToken: true });
+  S.idToken = j.idToken; S.refreshToken = j.refreshToken; S.idExpires = Date.now() + (Number(j.expiresIn) - 120) * 1000; saveSession();
+}
+async function refreshToken() {
+  if (!S.refreshToken) throw new Error("signed-out");
+  const res = await fetch("https://securetoken.googleapis.com/v1/token?key=" + encodeURIComponent(S.apiKey), {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "grant_type=refresh_token&refresh_token=" + encodeURIComponent(S.refreshToken) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) { S.refreshToken = null; saveSession(); throw new Error("signed-out"); }
+  S.idToken = j.id_token; S.refreshToken = j.refresh_token; S.idExpires = Date.now() + (Number(j.expires_in) - 120) * 1000; saveSession();
+}
+async function token() { if (!S.idToken || Date.now() > S.idExpires) await refreshToken(); return S.idToken; }
+
+// ---- Worker API ---------------------------------------------------------
+class ApiError extends Error { constructor(message, status, code, data) { super(message); this.status = status; this.code = code; this.data = data; } }
+async function api(path, options = {}, retry = true) {
+  const headers = { Authorization: "Bearer " + await token(), ...(options.headers || {}) };
+  let res;
+  try { res = await fetch(server() + "/v1/review" + path, { ...options, headers }); }
+  catch (_) { throw new ApiError("No connection to the server. Check your internet.", 0, "NETWORK"); }
+  if (res.status === 401 && retry) { S.idToken = null; await refreshToken().catch(() => {}); if (S.idToken) return api(path, options, false); }
+  if (res.status === 401) { signOut("Your session ended. Sign in again."); throw new ApiError("Signed out.", 401, "AUTH"); }
+  const type = res.headers.get("Content-Type") || "";
+  const json = type.includes("json") ? await res.json().catch(() => ({})) : {};
+  if (res.status === 403 && json.error && json.error.code === "REVIEW_TEAM_ONLY") { signOut("You are not on the review team (anymore). Ask the Owner."); throw new ApiError("Not on the team.", 403, "REVIEW_TEAM_ONLY"); }
+  if (!res.ok) throw new ApiError((json.error && json.error.message) || ("Error " + res.status), res.status, json.error && json.error.code, json);
+  return json;
+}
+async function blobUrl(path) {
+  try {
+    const res = await fetch(server() + "/v1/review" + path, { headers: { Authorization: "Bearer " + await token() } });
+    if (!res.ok) return null;
+    const url = URL.createObjectURL(await res.blob()); S.urls.push(url); return url;
+  } catch (_) { return null; }
+}
+function clearUrls() { S.urls.forEach(u => URL.revokeObjectURL(u)); S.urls = []; }
+const can = p => !!(S.me && S.me.permissions && S.me.permissions.includes(p));
+
+// ---- Screens ------------------------------------------------------------
+function showSignin(message) {
+  $("app").classList.add("hidden"); $("signin").classList.remove("hidden");
+  $("signinMsg").className = "small bad"; $("signinMsg").textContent = message || "";
+}
+function signOut(message) {
+  S.idToken = null; S.refreshToken = null; S.me = null; saveSession(); clearUrls();
+  clearInterval(S.lockTimer); clearInterval(S.pollTimer); S.selected = null;
+  showSignin(message || "");
+}
+async function start() {
+  const me = await api("/me");
+  S.me = me.reviewer;
+  $("whoName").textContent = S.me.name; $("whoRole").textContent = S.me.role === "LEAD" ? "Lead" : "Reviewer";
+  $("cleanupBtn").classList.toggle("hidden", !can("RUN_CLEANUP"));
+  $("leadHint").textContent = can("PUBLISH_NOW") ? "As a Lead you can also take over a stuck review, PUBLISH NOW and run the cleanup." : "Leads can take over stuck reviews and publish old approvals.";
+  $("signin").classList.add("hidden"); $("app").classList.remove("hidden");
+  await refreshAll();
+  clearInterval(S.pollTimer);
+  S.pollTimer = setInterval(() => { if (!document.hidden) refreshAll(true).catch(() => {}); }, 60000);
+}
+
+async function refreshAll(quiet = false) {
+  const [sum, locks] = await Promise.all([api("/summary"), api("/locks")]);
+  S.summary = sum.summary; S.locks = locks.locks || [];
+  renderTabs();
+  await loadQueue(quiet);
+}
+function lockOf(type, id) { return S.locks.find(l => l.type === type && l.id === id) || null; }
+
+function dueText(receivedDate) {
+  const due = Date.parse(receivedDate + "T00:00:00Z") + 30 * 86400000; if (!Number.isFinite(due)) return "";
+  const days = Math.ceil((due - Date.now()) / 86400000); return days < 0 ? "OVERDUE " + (-days) + " d" : "due in " + days + " d";
+}
+function renderTabs() {
+  const q = S.summary ? S.summary.queues : {};
+  const sum = S.summary || {};
+  const tabs = [...QUEUES, ...LEAD_QUEUES.filter(t => can(t[2]))];
+  $("tabs").innerHTML = tabs.map(([key, label]) => {
+    const info = key === "CHANGES" ? sum.changes : key === "CLAIMS" ? sum.claims : key === "DELETIONS" ? sum.deletions : q[key];
+    const count = key === "ACTIVITY" ? "·" : info ? info.count : 0;
+    const waiting = key === "DELETIONS" && info && info.oldest ? dueText(info.oldest)
+      : info && info.oldest && ["SUBMITTED", "IN_REVIEW", "CHANGES", "CLAIMS"].includes(key) ? "oldest " + ago(info.oldest) : "";
+    return `<button class="tab ${S.queue === key ? "on" : ""}" data-q="${key}"><b>${count}</b><span>${esc(label)}</span><em>${esc(waiting)}</em></button>`;
+  }).join("");
+}
+
+async function loadQueue(quiet = false) {
+  if (!quiet) $("listPane").innerHTML = `<div class="card muted">Loading…</div>`;
+  try {
+    if (S.queue === "CHANGES") S.changes = (await api("/change-requests?status=PENDING")).items || [];
+    else if (S.queue === "CLAIMS") S.claims = (await api("/claims?status=" + S.claimStatus)).claims || [];
+    else if (S.queue === "DELETIONS") S.dels = (await api("/deletion-requests?status=" + S.delStatus)).requests || [];
+    else if (S.queue === "ACTIVITY") { const a = await api("/activity?limit=150" + (S.actFilter ? "&uid=" + encodeURIComponent(S.actFilter) : "")); S.activity = a.activity || []; S.members = a.members || []; }
+    else S.items = (await api("/submissions?status=" + S.queue)).items || [];
+    renderList();
+  } catch (e) { if (e.code !== "AUTH" && e.code !== "REVIEW_TEAM_ONLY") $("listPane").innerHTML = `<div class="card bad">${esc(e.message)}</div>`; }
+}
+
+function lockTag(type, id) {
+  const l = lockOf(type, id); if (!l) return "";
+  return l.mine ? `<span class="tag me">You are reviewing</span>` : `<span class="tag warn">${esc(l.reviewerName || "Someone")} is reviewing</span>`;
+}
+const copyTag = s => s.files && s.files.audio && s.files.audio.format !== "MP3" ? (s.streamCopy ? "MP3 copy ready" : s.files.audio.format + ": needs MP3 copy") : "";
+
+function renderList() {
+  const pane = $("listPane");
+  if (S.queue === "CLAIMS") { renderClaimList(pane); return; }
+  if (S.queue === "DELETIONS") { renderDeletionList(pane); return; }
+  if (S.queue === "ACTIVITY") { renderActivity(pane); return; }
+  if (S.queue === "CHANGES") {
+    if (!S.changes.length) { pane.innerHTML = `<div class="card muted">No profile changes waiting.</div>`; return; }
+    pane.innerHTML = S.changes.map((c, i) => `<div class="card item ${S.selected === "c:" + c.requestId ? "sel" : ""}" data-change="${i}">
+      <div class="title">${c.kind === "NAME" ? "New name: " + esc(c.newName) : "New photos"}</div>
+      <div class="muted small">${esc(c.currentName)} · ${esc(c.requesterEmail || "")}</div>
+      <div style="margin-top:6px">${lockTag("change-request", c.requestId)}<span class="tag">${esc(ago(c.submittedAt))}</span>
+        ${c.nameCheck && !c.nameCheck.available ? '<span class="tag bad">name not available</span>' : ""}
+        ${c.nameCheck && c.nameCheck.similarArtists && c.nameCheck.similarArtists.length ? '<span class="tag warn">similar name</span>' : ""}</div></div>`).join("");
+    return;
+  }
+  if (!S.items.length) { pane.innerHTML = `<div class="card muted">Nothing here.</div>`; return; }
+  pane.innerHTML = S.items.map((it, i) => {
+    const s = it.submission, a = it.application, r = s.review || {};
+    return `<div class="card item ${S.selected === "s:" + s.submissionId ? "sel" : ""}" data-item="${i}">
+      <div class="title">${esc(s.title || "Untitled")}</div>
+      <div class="muted small">${esc(a ? a.artistName + " · new artist" : "Next single")} · ${esc(it.owner.email || "")}</div>
+      <div style="margin-top:6px">${lockTag("submission", s.submissionId)}
+        ${a && a.similarArtists && a.similarArtists.length ? '<span class="tag warn">similar name</span>' : ""}
+        ${r.appealUsed ? '<span class="tag warn">appealed</span>' : ""}${r.proofSentAt ? '<span class="tag ok">proof sent</span>' : ""}
+        ${s.aiUsed ? '<span class="tag warn">AI used</span>' : ""}${s.explicit ? '<span class="tag">explicit</span>' : ""}
+        ${s.publication ? '<span class="tag ok">live</span>' : (s.status === "APPROVED" ? '<span class="tag warn">not published</span>' : "")}
+        ${copyTag(s) ? '<span class="tag warn">' + esc(copyTag(s)) + '</span>' : ""}${it.missing.length ? '<span class="tag bad">missing ' + it.missing.length + '</span>' : ""}
+        <span class="tag">${esc(ago(s.submittedAt || s.updatedAt))}</span></div></div>`;
+  }).join("");
+}
+
+function openDetailPane() { $("layout").classList.add("detail-open"); if (window.innerWidth <= 860) window.scrollTo({ top: 0 }); }
+function closeDetailPane() { $("layout").classList.remove("detail-open"); }
+
+// ---- Lock bar -----------------------------------------------------------
+function lockBar(type, id) {
+  const l = lockOf(type, id);
+  if (!l) return `<div class="lockbar"><div><b>Nobody is reviewing this.</b><div class="muted small">Claim it so others know you are on it (30 minutes, renewed while it stays open).</div></div>
+    <button class="btn primary" data-lock="claim">I'm reviewing this</button></div>`;
+  if (l.mine) return `<div class="lockbar mine"><div><b>You are reviewing this.</b><div class="muted small">Held until ${esc(hhmm(l.expiresAt))}; renewed while this stays open. A final decision releases it.</div></div>
+    <button class="btn" data-lock="release">Release</button></div>`;
+  return `<div class="lockbar other"><div><b>${esc(l.reviewerName || "Another reviewer")} is reviewing this.</b><div class="muted small">Until ${esc(hhmm(l.expiresAt))}. You can read and add notes, but not decide.</div></div>
+    ${can("PUBLISH_NOW") ? '<button class="btn danger" data-lock="takeover">Take over (Lead)</button>' : ""}</div>`;
+}
+async function lockAction(kind, type, id) {
+  try {
+    if (kind === "release") await api(`/locks/${type}/${encodeURIComponent(id)}`, { method: "DELETE" });
+    else await api("/locks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type, id, takeOver: kind === "takeover" }) });
+  } catch (e) { toast(e.message); }
+  S.locks = (await api("/locks").catch(() => ({ locks: S.locks }))).locks || [];
+  renderList(); await reopen();
+}
+function keepLockAlive() {
+  clearInterval(S.lockTimer);
+  S.lockTimer = setInterval(async () => {
+    if (!S.selected) return;
+    const [kind, id] = [S.selected.slice(0, 1), S.selected.slice(2)];
+    const type = kind === "s" ? "submission" : "change-request";
+    const l = lockOf(type, id);
+    if (l && l.mine) { try { await api("/locks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ type, id }) }); } catch (_) {} }
+  }, 10 * 60000);
+}
+async function reopen() {
+  if (!S.selected) return;
+  const id = S.selected.slice(2);
+  if (S.selected.startsWith("s:")) await openItem(id, true);
+  else if (S.selected.startsWith("k:")) await openClaim(id);
+  else if (S.selected.startsWith("d:")) await openDeletion(id);
+  else { const c = S.changes.find(x => x.requestId === id); if (c) await openChange(c); }
+}
+
+// ---- Notes --------------------------------------------------------------
+async function notesHtml(type, id) {
+  let notes = [];
+  try { notes = (await api(`/notes/${type}/${encodeURIComponent(id)}`)).notes || []; } catch (_) {}
+  return `<div class="sec"><div class="eyebrow">Team notes · never shown to the artist</div></div>
+    ${notes.length ? notes.map(n => `<div class="note"><div class="tiny muted">${esc(n.authorName || "")} · ${esc(new Date(n.createdAt).toLocaleString())}</div>${esc(n.text)}</div>`).join("") : '<p class="muted small">No notes yet.</p>'}
+    <div class="row" style="margin-top:8px"><textarea class="input" id="noteText" placeholder="Note for the team (e.g. what you checked)" style="min-height:60px;flex:1"></textarea></div>
+    <div class="row" style="margin-top:6px"><button class="btn" data-note="${esc(type)}">Add note</button></div>`;
+}
+async function addNote(type) {
+  const text = $("noteText").value.trim(); if (text.length < 2) { toast("Write a note first."); return; }
+  const id = S.selected.slice(2);
+  try { await api(`/notes/${type}/${encodeURIComponent(id)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) }); toast("Note added."); await reopen(); }
+  catch (e) { toast(e.message); }
+}
+
+// ---- Single detail ------------------------------------------------------
+async function freshLocks() { try { S.locks = (await api("/locks")).locks || []; } catch (_) {} }
+async function openItem(id, keepScroll = false) {
+  S.selected = "s:" + id; await freshLocks(); renderList(); openDetailPane(); clearUrls();
+  if (!keepScroll) $("detailPane").innerHTML = `<div class="card muted">Loading…</div>`;
+  try { const { item } = await api("/submissions/" + encodeURIComponent(id)); await renderItem(item); keepLockAlive(); }
+  catch (e) { if (e.code !== "AUTH") $("detailPane").innerHTML = `<div class="card bad">${esc(e.message)}</div>`; }
+}
+
+function audioLine(x) {
+  if (!x) return "none";
+  const dur = x.durationMs != null ? Math.floor(x.durationMs / 60000) + ":" + String(Math.round(x.durationMs / 1000) % 60).padStart(2, "0") : "?";
+  return `${esc(x.format)} · ${dur} · ${esc(x.bitrateKbps || "?")} kbps · ${x.sampleRate ? (x.sampleRate / 1000).toFixed(1) + " kHz" : "?"} · ${(x.bytes / 1048576).toFixed(1)} MB`;
+}
+
+async function renderItem(item) {
+  const s = item.submission, a = item.application, r = s.review || {}, f = s.files || {};
+  const p = "/submissions/" + encodeURIComponent(s.submissionId) + "/files/";
+  // Only ask for files that exist (a next single has no profile/cover photos; the beat is optional).
+  const want = { profile: !!a, cover: !!a, artwork: !!f.artwork, audio: !!f.audio, beat: !!f.beat };
+  const [profile, cover, artwork, audio, beat] = await Promise.all(Object.keys(want).map(k => want[k] ? blobUrl(p + k) : null));
+  const proofs = await Promise.all((r.proofFiles || []).map(async pf => ({ ...pf, url: await blobUrl(p + "proof/" + encodeURIComponent(pf.fileId)) })));
+  const decl = s.declarations || {};
+  const lock = lockOf("submission", s.submissionId);
+  const blocked = lock && !lock.mine;
+  const canDecide = (s.status === "SUBMITTED" || s.status === "IN_REVIEW") && !blocked;
+  const needsPublish = s.status === "APPROVED" && !s.publication;
+  $("detailPane").innerHTML = `<div class="card">
+    <button class="btn" data-back style="min-height:34px;font-size:12px;margin-bottom:10px">← Queue</button>
+    <div class="row" style="justify-content:space-between;align-items:flex-start"><div><div style="font-size:22px;font-weight:900">${esc(s.title || "Untitled")}</div>
+      <div class="muted small">${esc(a ? "NEW ARTIST: " + a.artistName + " · " + a.primaryGenre : "Next single for artist " + (s.artistId || "?"))} · ${esc(item.owner.email || "")}</div></div>
+      <span class="tag ${s.status === "APPROVED" ? "ok" : s.status === "REJECTED" ? "bad" : "warn"}">${esc(s.status.replace("_", " "))}</span></div>
+    ${["SUBMITTED", "IN_REVIEW"].includes(s.status) ? lockBar("submission", s.submissionId) : ""}
+    ${item.missing.length ? `<p class="bad small">Missing: ${esc(item.missing.join(", "))}</p>` : ""}
+    ${needsPublish ? `<div class="lockbar other"><div><b>Approved but not on Gnokz Music yet.</b><div class="muted small">Approved before publishing existed.</div></div>
+      ${can("PUBLISH_NOW") ? '<button class="btn primary" id="publishNow">PUBLISH NOW</button>' : '<span class="muted small">A Lead can publish it.</span>'}</div>` : ""}
+    ${s.publication ? `<p class="okc small">Live on Gnokz Music: ${esc(s.publication.artistName || s.publication.artistId)} · ${esc(s.publication.songId)}</p>` : ""}
+    <div class="sec"><div class="eyebrow">Artist</div></div>
+    <div class="row" style="align-items:flex-start;gap:14px">${profile ? `<img class="round" src="${profile}" alt="Profile photo">` : '<span class="muted small">No profile photo (next single).</span>'}
+      <div style="flex:1;min-width:200px">${cover ? `<img class="media" src="${cover}" alt="Cover photo">` : ""}</div></div>
+    ${a && a.similarArtists && a.similarArtists.length ? `<p class="warnc small">Similar published names: ${a.similarArtists.map(x => esc(x.name)).join(", ")}</p>` : ""}
+    <div class="sec"><div class="eyebrow">Song</div></div>
+    <div class="grid2"><div>${artwork ? `<img class="media" src="${artwork}" alt="Artwork">` : '<span class="muted small">No artwork</span>'}</div>
+      <div><div class="muted small">Song: ${audioLine(f.audio)}</div>${audio ? `<audio controls preload="none" src="${audio}"></audio>` : ""}
+        ${f.beat ? `<div class="muted small" style="margin-top:10px">Original beat: ${audioLine(f.beat)}</div>${beat ? `<audio controls preload="none" src="${beat}"></audio>` : ""}` : ""}</div></div>
+    ${streamSection(s, canDecide)}
+    <div class="sec"><div class="eyebrow">Details and declarations</div></div>
+    <dl><dt>Genre</dt><dd>${esc(s.genre)}</dd><dt>Explicit</dt><dd>${s.explicit ? "Yes" : "No"}</dd>
+      <dt>Featured</dt><dd>${esc(s.featuredArtists) || "—"}</dd><dt>Songwriters</dt><dd>${esc(s.songwriters) || "—"}</dd><dt>Producers</dt><dd>${esc(s.producers) || "—"}</dd>
+      <dt>AI used</dt><dd class="${s.aiUsed ? "warnc" : ""}">${s.aiUsed ? "YES — " + esc((s.aiParts || []).join(", ")) + "\n" + esc(s.aiDescription) : "No"}</dd>
+      <dt>Declarations</dt><dd>${[["ownsRights", "Owns the rights"], ["noCopiedParts", "No copied parts"], ["ownVoice", "Own real voice"], ["aiBeatFromOwnOriginal", "AI beat from own original"]].map(([k, l]) => (decl[k] ? "✔ " : "✘ ") + l).join("\n")}</dd>
+      <dt>Lyrics</dt><dd>${esc(s.lyrics) || "—"}</dd></dl>
+    ${(r.decision || r.appealMessage || proofs.length) ? `<div class="sec"><div class="eyebrow">Review history</div></div><dl>
+      ${r.decision ? `<dt>Last decision</dt><dd>${esc(r.decision)}${r.reasonCode ? " (" + esc(r.reasonCode) + ")" : ""} — ${esc(r.message || "")}</dd>` : ""}
+      ${r.appealMessage ? `<dt>Appeal</dt><dd class="warnc">${esc(r.appealMessage)}</dd>` : ""}
+      ${r.proofNote ? `<dt>Proof note</dt><dd>${esc(r.proofNote)}</dd>` : ""}
+      ${proofs.length ? `<dt>Proof files</dt><dd>${proofs.map(pf => String(pf.contentType).startsWith("image/") && pf.url ? `<img class="media" style="margin-bottom:6px" src="${esc(pf.url)}" alt="Proof">` : `<a href="${esc(pf.url || "#")}" target="_blank" rel="noopener noreferrer">${esc(pf.name || pf.fileId)}</a>`).join("<br>")}</dd>` : ""}
+    </dl>` : ""}
+    <div class="sec"><div class="eyebrow">Timeline</div></div>
+    ${(item.events || []).map(e => `<div class="event">${esc(new Date(e.at).toLocaleString())} · ${esc((e.from || "—").replace("_", " "))} → ${esc(e.to.replace("_", " "))}${e.actorName ? " · " + esc(e.actorName) : ""}${e.note ? " · " + esc(e.note) : ""}</div>`).join("")}
+    ${await notesHtml("submission", s.submissionId)}
+    <div class="sec"><div class="eyebrow">Decision</div></div>
+    ${canDecide ? decisionForm(s) : `<p class="muted small">${blocked ? "Someone else is reviewing this." : "No decision possible while " + esc(s.status.replace("_", " ")) + " (the artist acts next, or it is final)."}</p>`}
+  </div>`;
+  if (canDecide) wireDecision(s);
+  wireStream(s);
+  const pub = $("publishNow");
+  if (pub) pub.onclick = async () => {
+    if (!confirm(`Publish "${s.title}" on Gnokz Music now?`)) return;
+    pub.disabled = true;
+    try { await api("/submissions/" + encodeURIComponent(s.submissionId) + "/decision", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "publish" }) });
+      toast("Published."); await refreshAll(true); await openItem(s.submissionId, true); }
+    catch (e) { toast(e.message); pub.disabled = false; }
+  };
+}
+
+function decisionForm(s) {
+  return `<div class="row">${s.status === "SUBMITTED" ? '<button class="btn" data-a="start-review">Start review</button>' : ""}
+      <button class="btn" data-a="needs-changes">Needs changes</button><button class="btn" data-a="needs-proof">Needs proof</button>
+      <button class="btn" data-a="approve">Approve (goes live)</button><button class="btn danger" data-a="reject">Reject</button></div>
+    <div id="form" class="hidden" style="margin-top:12px">
+      <select id="template" class="input hidden" style="margin-bottom:8px"></select>
+      <div id="itemsBox" class="checks hidden" style="margin-bottom:8px">${ITEMS.map(i => `<label><input type="checkbox" value="${i}">${esc(i.replace("_", " ").toLowerCase())}</label>`).join("")}</div>
+      <select id="reason" class="input hidden" style="margin-bottom:8px"><option value="">Choose a reason…</option>${Object.entries(REASONS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("")}</select>
+      <textarea id="msg" class="input" placeholder="Message for the artist (they see it exactly as written)"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="send">Send decision</button><span id="formErr" class="bad small"></span></div>
+    </div>`;
+}
+function wireDecision(s) {
+  let action = null;
+  document.querySelectorAll("#detailPane [data-a]").forEach(b => b.onclick = () => {
+    action = b.dataset.a;
+    document.querySelectorAll("#detailPane [data-a]").forEach(x => x.classList.toggle("on", x === b));
+    $("form").classList.remove("hidden");
+    const templates = TEMPLATES[action] || [];
+    $("template").classList.toggle("hidden", !templates.length);
+    $("template").innerHTML = `<option value="">Use a message template…</option>` + templates.map((t, i) => `<option value="${i}">${esc(t.label)}</option>`).join("");
+    $("itemsBox").classList.toggle("hidden", action !== "needs-changes");
+    $("reason").classList.toggle("hidden", action !== "reject");
+    $("msg").classList.toggle("hidden", action === "start-review" || action === "approve");
+    $("send").textContent = action === "start-review" ? "Start review" : action === "approve" ? "Approve — publish now" : "Send decision";
+    // A new action starts clean (a message written for another action is never sent by mistake).
+    $("msg").value = ""; $("reason").value = ""; document.querySelectorAll("#itemsBox input").forEach(x => { x.checked = false; });
+  });
+  $("template").onchange = () => {
+    const t = (TEMPLATES[action] || [])[Number($("template").value)]; if (!t) return;
+    $("msg").value = t.text;
+    if (t.items) document.querySelectorAll("#itemsBox input").forEach(x => { if (t.items.includes(x.value)) x.checked = true; });
+    if (t.reason) $("reason").value = t.reason;
+  };
+  $("send").onclick = async () => {
+    const items = [...document.querySelectorAll("#itemsBox input:checked")].map(x => x.value);
+    const body = { action, message: $("msg").value.trim(), items, reasonCode: $("reason").value || undefined };
+    if (!confirm(action === "approve" ? `Approve "${s.title}"? It goes LIVE on Gnokz Music now${s.applicationId ? " together with the new artist" : ""}.`
+      : action === "start-review" ? "Start the review? The artist sees \"Being reviewed\"." : `Send "${action}" for "${s.title}"? The artist will see your message in their Inbox.`)) return;
+    $("send").disabled = true; $("formErr").textContent = "";
+    try {
+      await api("/submissions/" + encodeURIComponent(s.submissionId) + "/decision", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      toast(action === "approve" ? "Approved — it is live on Gnokz Music." : "Saved: " + action.replace("-", " "));
+      await refreshAll(true); await openItem(s.submissionId, true);
+    } catch (e) { $("formErr").textContent = e.message; $("send").disabled = false; if (e.code === "LOCKED_BY_OTHER") { await refreshAll(true); await openItem(s.submissionId, true); } }
+  };
+}
+
+// ---- MP3 streaming copy (WAV/FLAC) ---------------------------------------
+function streamSection(s, canDecide) {
+  const audio = s.files && s.files.audio;
+  if (!audio || audio.format === "MP3") return "";
+  const ready = s.streamCopy ? `<p class="okc small">MP3 streaming copy ready: ${esc(s.streamCopy.bitrateKbps)} kbps · ${(s.streamCopy.bytes / 1048576).toFixed(1)} MB. Listeners get this; the ${esc(audio.format)} stays private.</p>` : "";
+  return `<div class="sec"><div class="eyebrow">Streaming copy</div></div>
+    <p class="muted small">The song is ${esc(audio.format)}. Gnokz Music streams MP3, so approving needs an MP3 copy (320 kbps, same length).</p>${ready}
+    ${canDecide ? `<div class="row"><button class="btn" id="makeMp3">${s.streamCopy ? "Make it again" : "Make MP3 (320 kbps) here"}</button>
+      <label class="muted small">or upload an MP3 <input id="ownMp3" type="file" accept="audio/mpeg,.mp3"></label></div><div id="mp3Status" class="muted small"></div>` : ""}`;
+}
+function loadLame() {
+  if (window.lamejs) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const tag = document.createElement("script");
+    tag.src = LAME.url; tag.integrity = LAME.sri; tag.crossOrigin = "anonymous";
+    tag.onload = () => window.lamejs ? resolve() : reject(new Error("MP3 encoder did not load."));
+    tag.onerror = () => reject(new Error("Could not load the MP3 encoder (check internet)."));
+    document.head.appendChild(tag);
+  });
+}
+async function encodeMp3(sourceUrl, progress) {
+  await loadLame();
+  const data = await (await fetch(sourceUrl)).arrayBuffer();
+  const audio = await new OfflineAudioContext(2, 44100, 44100).decodeAudioData(data);
+  const left = audio.getChannelData(0), right = audio.numberOfChannels > 1 ? audio.getChannelData(1) : left;
+  const encoder = new lamejs.Mp3Encoder(2, 44100, 320), block = 1152, chunks = [];
+  const pcm = (src, a, b) => { const out = new Int16Array(b - a); for (let i = a; i < b; i++) { const v = Math.max(-1, Math.min(1, src[i])); out[i - a] = v < 0 ? v * 0x8000 : v * 0x7fff; } return out; };
+  for (let i = 0; i < left.length; i += block) {
+    const end = Math.min(i + block, left.length);
+    const mp3 = encoder.encodeBuffer(pcm(left, i, end), pcm(right, i, end)); if (mp3.length) chunks.push(new Uint8Array(mp3));
+    if ((i / block) % 400 === 0) { progress(Math.round(i * 100 / left.length)); await new Promise(r => setTimeout(r)); }
+  }
+  const tail = encoder.flush(); if (tail.length) chunks.push(new Uint8Array(tail));
+  return new Blob(chunks, { type: "audio/mpeg" });
+}
+function wireStream(s) {
+  const make = $("makeMp3"), own = $("ownMp3"); if (!make) return;
+  const status = t => { $("mp3Status").textContent = t; };
+  const upload = async blob => {
+    status("Uploading " + (blob.size / 1048576).toFixed(1) + " MB…");
+    await api("/submissions/" + encodeURIComponent(s.submissionId) + "/stream-copy", { method: "PUT", headers: { "Content-Type": "audio/mpeg" }, body: blob });
+    status("Saved."); await openItem(s.submissionId, true);
+  };
+  make.onclick = async () => {
+    make.disabled = true;
+    try { status("Reading the song…"); const url = await blobUrl("/submissions/" + encodeURIComponent(s.submissionId) + "/files/audio");
+      if (!url) throw new Error("Could not read the song file.");
+      await upload(await encodeMp3(url, p => status("Encoding MP3… " + p + "%"))); }
+    catch (e) { status(e.message); make.disabled = false; }
+  };
+  own.onchange = async () => { if (own.files[0]) { try { await upload(own.files[0]); } catch (e) { status(e.message); } } };
+}
+
+// ---- Profile changes ----------------------------------------------------
+async function openChange(c) {
+  S.selected = "c:" + c.requestId; await freshLocks(); renderList(); openDetailPane(); clearUrls();
+  const p = "/change-requests/" + encodeURIComponent(c.requestId) + "/";
+  let body = "";
+  if (c.kind === "NAME") {
+    body = `<dl><dt>Current name</dt><dd>${esc(c.currentName)}</dd><dt>New name</dt><dd><b>${esc(c.newName)}</b></dd>
+      <dt>Reason</dt><dd>${esc(c.reason) || "—"}</dd><dt>Name check</dt><dd class="${c.nameCheck && !c.nameCheck.available ? "bad" : ""}">${esc(c.nameCheck ? c.nameCheck.message : "")}</dd></dl>
+      <p class="muted small">Approving renames the artist everywhere on Gnokz Music (all their songs).</p>`;
+  } else {
+    const [np, nc, cp, cc] = await Promise.all([blobUrl(p + "images/profile"), blobUrl(p + "images/cover"), blobUrl(p + "current/profile"), blobUrl(p + "current/cover")]);
+    const pair = (label, now, next) => next ? `<div class="sec"><div class="eyebrow">${label}</div></div><div class="grid2"><div><div class="muted small">Now</div>${now ? `<img class="media" src="${now}" alt="Current">` : "—"}</div>
+      <div><div class="muted small">New</div><img class="media" src="${next}" alt="New"></div></div>` : "";
+    body = pair("Profile photo", cp, np) + pair("Cover photo", cc, nc) + `<p class="muted small">Check: clean photo, no logos or watermarks, not another artist.</p>`;
+  }
+  const lock = lockOf("change-request", c.requestId), blocked = lock && !lock.mine;
+  $("detailPane").innerHTML = `<div class="card"><button class="btn" data-back style="min-height:34px;font-size:12px;margin-bottom:10px">← Queue</button>
+    <div style="font-size:20px;font-weight:900">${c.kind === "NAME" ? "Name change" : "Photo change"} · ${esc(c.currentName)}</div>
+    <div class="muted small">${esc(c.requesterEmail || "")}</div>
+    ${lockBar("change-request", c.requestId)}
+    ${body}
+    ${await notesHtml("change-request", c.requestId)}
+    <div class="sec"><div class="eyebrow">Decision</div></div>
+    ${blocked ? '<p class="muted small">Someone else is reviewing this.</p>' : `
+    <select id="ctemplate" class="input" style="margin-bottom:8px"><option value="">Use a message template (for Reject)…</option>${TEMPLATES["change-reject"].map((t, i) => `<option value="${i}">${esc(t.label)}</option>`).join("")}</select>
+    <textarea id="cmsg" class="input" placeholder="Message for the artist (required to reject)"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn primary" id="capprove">Approve</button><button class="btn danger" id="creject">Reject</button><span id="cerr" class="bad small"></span></div>`}
+  </div>`;
+  keepLockAlive();
+  if (blocked) return;
+  $("ctemplate").onchange = () => { const t = TEMPLATES["change-reject"][Number($("ctemplate").value)]; if (t) $("cmsg").value = t.text; };
+  const send = async action => {
+    if (!confirm(action === "approve" ? "Approve? This changes the artist on Gnokz Music now." : "Reject this change?")) return;
+    try {
+      await api(p + "decision", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, message: $("cmsg").value.trim() }) });
+      toast("Change " + action + "d."); S.selected = null; closeDetailPane(); $("detailPane").innerHTML = `<div class="card muted">Done.</div>`; await refreshAll(true);
+    } catch (e) { $("cerr").textContent = e.message; }
+  };
+  $("capprove").onclick = () => send("approve");
+  $("creject").onclick = () => send("reject");
+}
+
+// ---- Phase 3.2: Lead tools -----------------------------------------------
+function renderClaimList(pane) {
+  const filter = `<select class="input" id="claimStatus" style="margin-bottom:10px">${CLAIM_STATUSES.map(([k, l]) => `<option value="${k}" ${S.claimStatus === k ? "selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
+  if (!S.claims.length) { pane.innerHTML = filter + `<div class="card muted">No artist claims here.</div>`; return; }
+  pane.innerHTML = filter + S.claims.map((c, i) => `<div class="card item ${S.selected === "k:" + c.claimId ? "sel" : ""}" data-claim="${i}">
+    <div class="title">${esc(c.artistName)}</div>
+    <div class="muted small">${esc(c.claimantName || "")} · ${esc(c.claimantEmail || "")}</div>
+    <div style="margin-top:6px"><span class="tag">${esc(c.requestedRole)}</span><span class="tag">${esc(CLAIM_METHODS[c.verificationMethod] || c.verificationMethod)}</span><span class="tag">${esc(ago(c.submittedAt))}</span></div></div>`).join("");
+}
+function renderDeletionList(pane) {
+  const top = `<div class="row" style="margin-bottom:10px"><select class="input" id="delStatus" style="flex:1">${[["OPEN", "Open"], ["DONE", "Done"], ["CANCELLED", "Cancelled"]].map(([k, l]) => `<option value="${k}" ${S.delStatus === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+    <button class="btn primary" data-newdel>+ Record a request</button></div>`;
+  if (!S.dels.length) { pane.innerHTML = top + `<div class="card muted">No ${S.delStatus === "OPEN" ? "open " : ""}deletion requests.</div>`; return; }
+  pane.innerHTML = top + S.dels.map((d, i) => {
+    const late = d.daysLeft != null && d.daysLeft <= 5;
+    return `<div class="card item ${S.selected === "d:" + d.requestId ? "sel" : ""}" data-del="${i}">
+      <div class="title">${esc(d.email || d.emailMasked)}</div>
+      <div class="muted small">received ${esc(d.receivedAt)}${d.dueBy ? " · due by " + esc(d.dueBy) : ""}</div>
+      <div style="margin-top:6px">${d.status === "READY" ? '<span class="tag ok">checked — waiting for the Owner</span>' : d.status === "OPEN" ? '<span class="tag warn">to check</span>' : `<span class="tag">${esc(d.status)}</span>`}
+        ${d.daysLeft != null ? `<span class="tag ${late ? "bad" : ""}">${d.daysLeft < 0 ? "OVERDUE" : d.daysLeft + " days left"}</span>` : ""}${d.accountFound ? "" : '<span class="tag bad">no account</span>'}</div></div>`;
+  }).join("");
+}
+function renderActivity(pane) {
+  const filter = `<select class="input" id="actFilter" style="margin-bottom:10px"><option value="">Everyone</option><option value="owner" ${S.actFilter === "owner" ? "selected" : ""}>Owner</option>
+    ${S.members.map(m => `<option value="${esc(m.actorUid)}" ${S.actFilter === m.actorUid ? "selected" : ""}>${esc(m.name)}${m.active ? "" : " (removed)"}</option>`).join("")}</select>`;
+  pane.innerHTML = filter + (S.activity.length ? `<div class="card">${S.activity.map(a => {
+    const refused = a.status != null && a.status >= 400;
+    return `<div class="event" style="padding:7px 0;border-bottom:1px solid var(--line)"><b style="color:var(--text)">${esc(a.actorName || a.actorUid)}</b> · ${esc(ACTION_LABELS[a.action] || a.action)}${refused ? ` <span class="bad">refused (${esc(a.status)})</span>` : ""}
+      <div class="tiny">${esc(new Date(a.createdAt).toLocaleString())}${a.targetId ? " · " + esc(a.targetId) : ""}${a.detail && /^(TEAM_|DELETION|ACCOUNT_)/.test(a.action) ? " · " + esc(a.detail) : ""}</div></div>`;
+  }).join("")}</div>` : `<div class="card muted">No activity yet.</div>`);
+  $("detailPane").innerHTML = `<div class="card muted">Who did what, newest first. Filter by person above. Artists never see who reviewed their music.</div>`;
+}
+
+async function mediaUrl(key) {
+  if (!key) return null;
+  try { const res = await fetch(server() + "/" + key.split("/").map(encodeURIComponent).join("/")); if (!res.ok) return null;
+    const url = URL.createObjectURL(await res.blob()); S.urls.push(url); return url; } catch (_) { return null; }
+}
+const safeLink = u => /^https?:\/\//i.test(String(u || "")) ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(u)}</a>` : esc(u || "—");
+
+async function openClaim(id) {
+  S.selected = "k:" + id; renderList(); openDetailPane(); clearUrls();
+  $("detailPane").innerHTML = `<div class="card muted">Loading…</div>`;
+  let c;
+  try { c = (await api("/claims/" + encodeURIComponent(id))).claim; } catch (e) { if (e.code !== "AUTH") $("detailPane").innerHTML = `<div class="card bad">${esc(e.message)}</div>`; return; }
+  const avatar = await mediaUrl(c.artist.avatarKey);
+  const owners = c.artist.team.filter(t => t.role === "OWNER");
+  const open = c.status === "PENDING" || c.status === "MORE_INFORMATION_REQUIRED";
+  $("detailPane").innerHTML = `<div class="card">
+    <button class="btn" data-back style="min-height:34px;font-size:12px;margin-bottom:10px">← Queue</button>
+    <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="row" style="align-items:center;gap:12px">
+      ${avatar ? `<img class="round" style="width:64px;height:64px" src="${avatar}" alt="">` : ""}<div><div style="font-size:22px;font-weight:900">${esc(c.artist.name)}</div>
+      <div class="muted small">${esc(c.artist.genre || "")}${c.artist.verified ? " · verified" : ""} · ${c.artist.songs == null ? "?" : esc(c.artist.songs)} songs on Gnokz Music</div></div></div>
+      <span class="tag ${c.status === "APPROVED" ? "ok" : c.status === "REJECTED" ? "bad" : "warn"}">${esc(c.status.replaceAll("_", " "))}</span></div>
+    ${owners.length ? `<div class="lockbar other"><div><b>This artist already has an owner on Gnokz for Artists.</b><div class="muted small">${owners.map(o => esc(o.email || o.name || "?")).join(", ")}. Approving as OWNER adds a second owner.</div></div></div>` : ""}
+    <div class="sec"><div class="eyebrow">Who asks</div></div>
+    <dl><dt>Account</dt><dd>${esc(c.claimantName || "")} · ${esc(c.claimantEmail || "")}${c.claimantEmailVerified ? " (email verified)" : ' <span class="bad">(email not verified)</span>'}</dd>
+      <dt>Gnokz account since</dt><dd>${esc(c.claimantSince ? new Date(c.claimantSince).toLocaleDateString() : "?")}</dd>
+      <dt>Asks to be</dt><dd><b>${esc(c.requestedRole)}</b></dd>
+      <dt>Proof method</dt><dd>${esc(CLAIM_METHODS[c.verificationMethod] || c.verificationMethod)}</dd>
+      <dt>Official link</dt><dd>${c.officialUrl ? safeLink(c.officialUrl) : "—"}</dd>
+      ${c.evidenceNote ? `<dt>Their note</dt><dd>${esc(c.evidenceNote)}</dd>` : ""}
+      <dt>Evidence</dt><dd>${c.evidence.length ? c.evidence.map(e => `${esc(e.type.replaceAll("_", " ").toLowerCase())}: <b class="${e.state === "VERIFIED" ? "okc" : ""}">${esc(e.state)}</b>${e.officialUrl ? " · " + safeLink(e.officialUrl) : ""}`).join("\n") : "none"}</dd></dl>
+    <p class="muted small">Open the link yourself and check that it is really the artist's official page (posts, followers, the same name and photo).</p>
+    <div class="sec"><div class="eyebrow">Artist team now</div></div>
+    ${c.artist.team.length ? c.artist.team.map(t => `<div class="event">${esc(t.role)} · ${esc(t.email || t.name || "?")}</div>`).join("") : '<p class="muted small">Nobody manages this artist yet.</p>'}
+    ${c.related.length ? `<div class="sec"><div class="eyebrow">Other claims (same person or same artist)</div></div>${c.related.map(r => `<div class="event">${esc(r.artistName)} · ${esc(r.role)} · ${esc(r.status.replaceAll("_", " "))}</div>`).join("")}` : ""}
+    <div class="sec"><div class="eyebrow">History</div></div>
+    ${c.events.length ? c.events.map(e => `<div class="event">${esc(new Date(e.at).toLocaleString())} · ${esc((e.from || "—").replaceAll("_", " "))} → ${esc(e.to.replaceAll("_", " "))} · ${esc(e.by)}${e.message ? " · " + esc(e.message) : ""}</div>`).join("") : '<p class="muted small">Sent, no decision yet.</p>'}
+    <div class="sec"><div class="eyebrow">Decision</div></div>
+    ${open ? `<div class="row"><button class="btn primary" data-ca="approve">Approve (gives access)</button><button class="btn" data-ca="request-information">Ask for more info</button><button class="btn danger" data-ca="reject">Reject</button></div>
+      <div id="cform" class="hidden" style="margin-top:12px"><select id="ctpl" class="input" style="margin-bottom:8px"></select>
+      <textarea id="cmsg2" class="input" placeholder="Message for the claimant (they see it exactly as written)"></textarea>
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="csend">Send</button><span id="cerr2" class="bad small"></span></div></div>`
+      : `<p class="muted small">Decided${c.reviewedBy ? " by " + esc(c.reviewedBy) : ""}${c.reviewerMessage ? ": " + esc(c.reviewerMessage) : ""}.</p>`}
+  </div>`;
+  if (!open) return;
+  let action = null;
+  document.querySelectorAll("#detailPane [data-ca]").forEach(b => b.onclick = () => {
+    action = b.dataset.ca; document.querySelectorAll("#detailPane [data-ca]").forEach(x => x.classList.toggle("on", x === b));
+    $("cform").classList.remove("hidden");
+    const t = CLAIM_TEMPLATES[action] || [];
+    $("ctpl").classList.toggle("hidden", !t.length);
+    $("ctpl").innerHTML = `<option value="">Use a message template…</option>` + t.map((x, i) => `<option value="${i}">${esc(x.label)}</option>`).join("");
+    $("cmsg2").value = ""; $("cerr2").textContent = "";
+    $("csend").textContent = action === "approve" ? `Approve — ${c.claimantEmail || "they"} becomes ${c.requestedRole}` : "Send";
+  });
+  $("ctpl").onchange = () => { const t = (CLAIM_TEMPLATES[action] || [])[Number($("ctpl").value)]; if (t) $("cmsg2").value = t.text; };
+  $("csend").onclick = async () => {
+    const message = $("cmsg2").value.trim();
+    if (action === "request-information" && message.length < 5) { $("cerr2").textContent = "Write what they should send."; return; }
+    if (!confirm(action === "approve" ? `Give ${c.claimantEmail} ${c.requestedRole} access to "${c.artist.name}" in Gnokz for Artists?` : `Send "${action.replace("-", " ")}" to the claimant?`)) return;
+    $("csend").disabled = true; $("cerr2").textContent = "";
+    try { await api("/claims/" + encodeURIComponent(c.claimId) + "/" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
+      toast(action === "approve" ? "Approved: they can open the artist workspace now." : "Saved."); await refreshAll(true); await openClaim(c.claimId); }
+    catch (e) { $("cerr2").textContent = e.message; $("csend").disabled = false; }
+  };
+}
+
+function newDeletionForm() {
+  S.selected = null; renderList(); openDetailPane(); clearUrls();
+  const today = new Date().toISOString().slice(0, 10);
+  $("detailPane").innerHTML = `<div class="card"><button class="btn" data-back style="min-height:34px;font-size:12px;margin-bottom:10px">← Queue</button>
+    <div style="font-size:20px;font-weight:900">Record a "Delete my Gnokz account" email</div>
+    <p class="muted small">Use this when someone emails ${esc("gnokz.support@gmail.com")} to delete their account. We promised to do it within 30 days.</p>
+    <label class="field"><span class="small muted">The email address it came FROM</span><input id="delEmail" class="input" type="email" autocomplete="off"></label>
+    <label class="field"><span class="small muted">Date it arrived</span><input id="delDate" class="input" type="date" value="${today}" max="${today}"></label>
+    <label class="field"><span class="small muted">Note (optional)</span><input id="delNote" class="input" maxlength="500"></label>
+    <div class="row" style="margin-top:10px"><button class="btn primary" id="delSave">Record</button><span id="delErr" class="bad small"></span></div></div>`;
+  $("delSave").onclick = async () => {
+    $("delSave").disabled = true; $("delErr").textContent = "";
+    try { const r = await api("/deletion-requests", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: $("delEmail").value.trim(), receivedAt: $("delDate").value, note: $("delNote").value.trim() }) });
+      toast("Recorded."); S.delStatus = "OPEN"; await refreshAll(true); await openDeletion(r.request.requestId); }
+    catch (e) { $("delErr").textContent = e.message; $("delSave").disabled = false; }
+  };
+}
+
+async function openDeletion(id) {
+  S.selected = "d:" + id; renderList(); openDetailPane(); clearUrls();
+  $("detailPane").innerHTML = `<div class="card muted">Loading…</div>`;
+  let d, p;
+  try { const r = await api("/deletion-requests/" + encodeURIComponent(id)); d = r.request; p = r.preview; }
+  catch (e) { if (e.code !== "AUTH") $("detailPane").innerHTML = `<div class="card bad">${esc(e.message)}</div>`; return; }
+  const open = d.status === "OPEN" || d.status === "READY";
+  $("detailPane").innerHTML = `<div class="card"><button class="btn" data-back style="min-height:34px;font-size:12px;margin-bottom:10px">← Queue</button>
+    <div class="row" style="justify-content:space-between;align-items:flex-start"><div><div style="font-size:20px;font-weight:900">${esc(d.email || d.emailMasked)}</div>
+      <div class="muted small">received ${esc(d.receivedAt)} · recorded by ${esc(d.createdByName || "?")}${d.dueBy ? " · due by " + esc(d.dueBy) : ""}</div></div>
+      <span class="tag ${d.status === "DONE" ? "ok" : d.status === "CANCELLED" ? "" : "warn"}">${esc(d.status)}</span></div>
+    ${d.note ? `<p class="small">${esc(d.note)}</p>` : ""}
+    ${d.status === "READY" ? `<div class="lockbar mine"><div><b>Checked by ${esc(d.verifiedByName || "?")}.</b><div class="muted small">Waiting for the Owner to delete it in Admin Studio.</div></div></div>` : ""}
+    ${d.status === "DONE" && d.result ? `<p class="okc small">Deleted${d.handledAt ? " on " + esc(new Date(d.handledAt).toLocaleDateString()) : ""}: ${esc(d.result.artistsRemoved.length)} artists, ${esc(d.result.songsRemoved)} songs removed.${d.firebaseDoneAt ? " Sign-in removed too." : " (Owner still removes the sign-in in Firebase.)"}</p>` : ""}
+    ${p ? `<div class="sec"><div class="eyebrow">What deleting would remove</div></div>
+      ${p.teamMember ? '<p class="bad small">This account is on the review team. The Owner must remove it from the team first.</p>' : ""}
+      <dl><dt>Account</dt><dd>${esc(p.account ? (p.account.name || "") + " · " + p.account.email : "?")}${p.account && p.account.since ? "\nsince " + esc(new Date(p.account.since).toLocaleDateString()) : ""}</dd>
+        <dt>Artists removed</dt><dd>${p.removeArtists.length ? p.removeArtists.map(a => esc(a.name) + " (" + esc(a.songs) + " songs)").join("\n") : "none"}</dd>
+        <dt>Artists kept</dt><dd>${p.keepArtists.length ? p.keepArtists.map(a => esc(a.name)).join("\n") : "none"}</dd>
+        <dt>Also deleted</dt><dd>${esc(p.counts.singles)} singles · ${esc(p.counts.applications)} artist applications · ${esc(p.counts.claims)} claims · ${esc(p.counts.playlists)} playlists, likes, follows and comments</dd></dl>` : open && !d.accountFound ? '<p class="bad small">No Gnokz account uses this email. Reply to the sender, then cancel this request.</p>' : ""}
+    ${open ? `<div class="sec"><div class="eyebrow">Check it</div></div>
+      ${d.status === "OPEN" && d.accountFound ? `<label class="small" style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" id="delChecked"> I checked in the mailbox: the email came FROM this exact address and asks to delete the Gnokz account.</label>
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="delReady">Mark as checked (for the Owner)</button></div>` : ""}
+      <div class="row" style="margin-top:12px"><input id="delCancelNote" class="input" style="flex:1" placeholder="Why cancel? (e.g. sent from another address)"><button class="btn danger" id="delCancel">Cancel request</button></div>
+      <span id="delErr2" class="bad small"></span>
+      <p class="muted small">Only the Owner deletes the account (Admin Studio → Deletion requests). It cannot be undone.</p>` : ""}
+  </div>`;
+  const ready = $("delReady");
+  if (ready) ready.onclick = async () => {
+    if (!$("delChecked").checked) { $("delErr2").textContent = "Tick the box after checking the email."; return; }
+    try { await api("/deletion-requests/" + encodeURIComponent(d.requestId) + "/ready", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ checked: true }) });
+      toast("Marked as checked. The Owner deletes it."); await refreshAll(true); await openDeletion(d.requestId); }
+    catch (e) { $("delErr2").textContent = e.message; }
+  };
+  const cancel = $("delCancel");
+  if (cancel) cancel.onclick = async () => {
+    const note = $("delCancelNote").value.trim(); if (note.length < 3) { $("delErr2").textContent = "Write why you cancel it."; return; }
+    if (!confirm("Cancel this deletion request?")) return;
+    try { await api("/deletion-requests/" + encodeURIComponent(d.requestId) + "/cancel", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ note }) });
+      toast("Cancelled."); await refreshAll(true); await openDeletion(d.requestId); }
+    catch (e) { $("delErr2").textContent = e.message; }
+  };
+}
+
+// ---- Wiring -------------------------------------------------------------
+$("tabs").addEventListener("click", e => { const b = e.target.closest("[data-q]"); if (!b) return; S.queue = b.dataset.q; S.selected = null; closeDetailPane(); renderTabs(); freshLocks().then(() => loadQueue()); });
+$("listPane").addEventListener("click", e => {
+  const it = e.target.closest("[data-item]"); if (it) { openItem(S.items[Number(it.dataset.item)].submission.submissionId); return; }
+  const ch = e.target.closest("[data-change]"); if (ch) { openChange(S.changes[Number(ch.dataset.change)]); return; }
+  const cl = e.target.closest("[data-claim]"); if (cl) { openClaim(S.claims[Number(cl.dataset.claim)].claimId); return; }
+  const dl = e.target.closest("[data-del]"); if (dl) { openDeletion(S.dels[Number(dl.dataset.del)].requestId); return; }
+  if (e.target.closest("[data-newdel]")) newDeletionForm();
+});
+$("listPane").addEventListener("change", e => {
+  if (e.target.id === "claimStatus") { S.claimStatus = e.target.value; loadQueue(); }
+  if (e.target.id === "delStatus") { S.delStatus = e.target.value; loadQueue(); }
+  if (e.target.id === "actFilter") { S.actFilter = e.target.value; loadQueue(); }
+});
+$("detailPane").addEventListener("click", e => {
+  if (e.target.closest("[data-back]")) { closeDetailPane(); return; }
+  const lb = e.target.closest("[data-lock]");
+  if (lb && S.selected) { const type = S.selected.startsWith("s:") ? "submission" : "change-request"; lockAction(lb.dataset.lock, type, S.selected.slice(2)); return; }
+  const nb = e.target.closest("[data-note]"); if (nb) addNote(nb.dataset.note);
+});
+$("refreshBtn").onclick = () => refreshAll().catch(e => toast(e.message));
+$("menuBtn").onclick = () => $("menu").classList.toggle("hidden");
+$("signoutBtn").onclick = () => { $("menu").classList.add("hidden"); signOut("Signed out."); $("signinMsg").className = "small okc"; };
+$("cleanupBtn").onclick = async () => {
+  $("menu").classList.add("hidden");
+  if (!confirm("Delete the private files of singles decided more than 30 days ago? Live songs are not touched.")) return;
+  try { const c = (await api("/maintenance/cleanup", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" })).cleanup;
+    toast(`Cleanup done: ${c.rejectedOrWithdrawn} rejected/withdrawn, ${c.approvedExtras} approved, ${c.files} files deleted.`, 6000); }
+  catch (e) { toast(e.message); }
+};
+$("serverBtn").onclick = () => $("serverBox").classList.toggle("hidden");
+/** Only an https:// Worker address (no path, no password) is accepted, so a sign-in token never goes over plain http. */
+function cleanServer(value) {
+  try { const u = new URL(String(value || "").trim()); return u.protocol === "https:" && !u.username && !u.password ? u.origin : ""; } catch (_) { return ""; }
+}
+function showServer() {
+  const custom = S.server && S.server !== DEFAULT_SERVER;
+  $("serverNote").classList.toggle("hidden", !custom);
+  $("serverNote").textContent = custom ? "Using a different server: " + new URL(S.server).host + " (Server → clear it to go back)." : "";
+  $("serverHint").textContent = "Server: " + new URL(server()).host;
+}
+$("server").addEventListener("change", () => {
+  const raw = $("server").value.trim(), clean = raw ? cleanServer(raw) : "";
+  if (raw && !clean) { $("signinMsg").className = "small bad"; $("signinMsg").textContent = "The server must be an https:// address."; $("server").value = S.server || DEFAULT_SERVER; return; }
+  S.server = clean === DEFAULT_SERVER ? "" : clean;
+  try { if (S.server) local?.setItem("gnokzReviewServer", S.server); else local?.removeItem("gnokzReviewServer"); } catch (_) {}
+  S.apiKey = null; showServer();
+});
+$("resetBtn").onclick = async () => {
+  const email = $("email").value.trim(); if (!email) { $("signinMsg").className = "small bad"; $("signinMsg").textContent = "Enter your email first."; return; }
+  try { if (!S.apiKey) await loadConfig(); await firebase("accounts:sendOobCode", { requestType: "PASSWORD_RESET", email });
+    $("signinMsg").className = "small okc"; $("signinMsg").textContent = "If this email has a Gnokz account, a reset link is on its way."; }
+  catch (e) { $("signinMsg").className = "small bad"; $("signinMsg").textContent = e.message; }
+};
+$("signinForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("signinBtn"); btn.disabled = true; $("signinMsg").className = "small muted"; $("signinMsg").textContent = "Signing in…";
+  try {
+    if (!S.apiKey) await loadConfig();
+    await signIn($("email").value.trim(), $("password").value);
+    $("password").value = "";
+    await start();
+    $("signinMsg").textContent = "";
+  } catch (err) {
+    if (err.code !== "REVIEW_TEAM_ONLY") { $("signinMsg").className = "small bad"; $("signinMsg").textContent = err.message === "signed-out" ? "Sign in again." : err.message; }
+  }
+  btn.disabled = false;
+});
+window.addEventListener("pagehide", clearUrls);
+
+(async function boot() {
+  try { S.server = cleanServer(local?.getItem("gnokzReviewServer")); } catch (_) {}
+  $("server").value = S.server || DEFAULT_SERVER; showServer();
+  try { S.refreshToken = session?.getItem("gnokzReviewRefresh") || null; } catch (_) {}
+  if (S.refreshToken) {
+    try { await loadConfig(); await refreshToken(); await start(); return; } catch (e) { if (e.code !== "REVIEW_TEAM_ONLY") showSignin(""); }
+  }
+})();
+</script>
+</body>
+</html>
